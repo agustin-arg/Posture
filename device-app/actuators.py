@@ -45,9 +45,9 @@ class PostureActuators:
         Señal única en el PIN 2 (LED Integrado) antes de morir.
         Se enciende fijo por 2 segundos.
         """
-        self.led_bat.on()
+        self.led_battery_low.on()
         utime.sleep(2)
-        self.led_bat.off()
+        self.led_battery_low.off()
 
     def feedback_calibration(self):
         """Secuencia visual: Parpadeo LED Azul"""
