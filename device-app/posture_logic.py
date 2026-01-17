@@ -40,8 +40,8 @@ class PostureProcessor:
         gyro_change = gyro_rate * delta_t
 
         # 4. Filtro Complementario
-        # Nuevo ángulo = (Confianza en Giroscopio + cambio) + (Confianza en Acelerómetro)
-        self.filtered_pitch = (1.0 - self.alpha) * (self.filtered_pitch + gyro_change) + \
-                              (self.alpha) * accel_pitch
+        # Ángulo = (Confianza en Giroscopio + cambio) + (Confianza en Acelerómetro)
+        self.filtered_pitch = (self.alpha) * (self.filtered_pitch + gyro_change) + \
+                              (1.0 - self.alpha) * accel_pitch
                               
         return self.filtered_pitch
