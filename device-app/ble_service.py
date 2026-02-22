@@ -65,6 +65,10 @@ class PostureBLE:
             config.BATTERY_NOTIFY_CHAR_UUID,
             ubluetooth.FLAG_READ | ubluetooth.FLAG_NOTIFY,
         )
+        servo_char = (
+            config.SERVO_CONTROL_CHAR_UUID,
+            ubluetooth.FLAG_READ | ubluetooth.FLAG_WRITE,
+        )
 
         posture_service = (
             config.POSTURE_SERVICE_UUID,
@@ -78,6 +82,7 @@ class PostureBLE:
                 notify_char,
                 system_char,
                 battery_char,
+                servo_char,
             ),
         )
 
@@ -92,6 +97,7 @@ class PostureBLE:
             self.notify_handle,
             self.system_handle,
             self.battery_handle,
+            self.servo_handle,
         ) = handles[0]
 
         # Escribir valores iniciales
@@ -101,6 +107,7 @@ class PostureBLE:
         self.ble.gatts_write(self.notify_handle, struct.pack("<B", 1))
         self.ble.gatts_write(self.system_handle, struct.pack("<B", 1))
         self.ble.gatts_write(self.battery_handle, struct.pack("<B", 2))
+        self.ble.gatts_write(self.servo_handle, struct.pack("<B", 1))
 
     def _start_advertising(self):
         payload = bytearray()
@@ -198,6 +205,9 @@ class PostureBLE:
 
             elif value_handle == self.notify_handle:
                 self.notifications_enabled = state
+
+            elif value_handle == self.servo_handle:
+                self.servo_enabled = state
 
             elif value_handle == self.system_handle:
                 self.system_enabled = state

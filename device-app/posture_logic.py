@@ -37,7 +37,8 @@ class PostureProcessor:
         self.last_time = current_time
 
         # 3. Integración del Giroscopio
-        gyro_rate = gyro_data.get("y", 0.0)
+        # Eje X: rotación adelante/atrás (pitch) con Z saliente, Y arriba, X derecha
+        gyro_rate = gyro_data.get("x", 0.0)
         gyro_change = gyro_rate * delta_t
 
         # 4. Filtro Complementario
