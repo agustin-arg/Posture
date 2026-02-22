@@ -23,6 +23,15 @@ class BatteryMonitor:
         voltage = (suma / samples / 4095) * 3.3 * self.divider_factor
         return voltage
 
+    def get_battery_level(self, voltage):
+        """Clasifica el voltaje en nivel de batería: 2=alto, 1=medio, 0=bajo"""
+        if voltage >= config.BATTERY_VOLTAGE_MAX:
+            return 2
+        elif voltage >= config.BATTERY_VOLTAGE_MID:
+            return 1
+        else:
+            return 0
+
     def check_and_handle_low_battery(self, actuators):
         """
         Verifica el voltaje. Si es crítico:

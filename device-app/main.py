@@ -67,7 +67,8 @@ class PostureApp:
 
         # Notifica la batería una vez
         volts_inicial = self.battery.read_voltage()
-        battery_level = self.ble.notify_battery(volts_inicial)
+        battery_level = self.battery.get_battery_level(volts_inicial)
+        self.ble.notify_battery(battery_level)
         if battery_level == 0:
             self.actuators.set_battery_led(True)
         else:
@@ -84,10 +85,13 @@ class PostureApp:
                 # 1. Revisar hardware y obtener voltaje
                 volts = self.battery.check_and_handle_low_battery(self.actuators)
 
-                # 2. Notificar al servicio BLE y obtener nivel
-                battery_level = self.ble.notify_battery(volts)
+                # 2. Clasificar nivel de batería
+                battery_level = self.battery.get_battery_level(volts)
 
-                # 3. Controlar LED según nivel de batería
+                # 3. Notificar al servicio BLE
+                self.ble.notify_battery(battery_level)
+
+                # 4. Controlar LED según nivel de batería
                 if battery_level == 0:
                     self.actuators.set_battery_led(True)
                 else:

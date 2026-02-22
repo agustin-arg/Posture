@@ -135,44 +135,32 @@ class PostureBLE:
         except:
             pass
 
-    def notify_battery(self, voltage):
-        """
-        Resive el voltage medido y lo clasifica
-        Deve devolver la clasificación para hacer uso en el Main.py
-        """
-        # 1. Calcular nivel
-        if voltage >= config.BATTERY_VOLTAGE_MAX:
-            battery_level = 2
-        elif voltage >= config.BATTERY_VOLTAGE_MID:
-            battery_level = 1
-        else:
-            battery_level = 0
-
-        # 2. Guardar en memoria SIEMPRE (GATTS Write)
+    def notify_battery(self, battery_level):
+        """Recibe el nivel de batería ya clasificado (0=bajo, 1=medio, 2=alto)
+        y actualiza la característica BLE, notificando si hay cambio."""
+        # 1. Guardar en memoria SIEMPRE (GATTS Write)
         try:
             self.ble.gatts_write(self.battery_handle, struct.pack("<B", battery_level))
         except:
             pass
 
-        # 3. Chequeo de conexión CORRECTO
+        # 2. Chequeo de conexión
         if self.conn_handle is None:
-            return battery_level
+            return
 
-        # 4. Filtro de repetidos
+        # 3. Filtro de repetidos
         if battery_level == self.last_battery_level:
-            return battery_level
+            return
 
         self.last_battery_level = battery_level
 
-        # 5. Notificar
+        # 4. Notificar
         try:
             self.ble.gatts_notify(
                 self.conn_handle, self.battery_handle, struct.pack("<B", battery_level)
             )
         except:
             pass
-
-        return battery_level
 
     def _irq(self, event, data):
         if event == 1:  # CONNECT
