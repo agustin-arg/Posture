@@ -5,17 +5,17 @@ PIN_SDA = 21
 PIN_SCL = 22
 
 # Pines de Feedback Visual (Postura y BLE)
-PIN_LED_RED = 25      # Mala Postura
-PIN_LED_GREEN = 33    # Buena Postura
-PIN_LED_BLUE = 32     # Estado Bluetooth
+PIN_LED_RED = 25  # Mala Postura
+PIN_LED_GREEN = 33  # Buena Postura
+PIN_LED_BLUE = 32  # Estado Bluetooth
 
 # Pin Exclusivo Batería (LED Integrado)
-PIN_LED_BAT_LOW = 2   # Solo se enciende al hibernar
+PIN_LED_BAT_LOW = 2  # Solo se enciende al hibernar
 
 PIN_BUZZER = 26
 PIN_VIBRATOR = 18
 PIN_SERVO = 19
-PIN_BAT = 27          # Entrada ADC Batería
+PIN_BAT = 27  # Entrada ADC Batería
 
 # --- Constantes del Servo ---
 SERVO_FREQ = 50
@@ -25,14 +25,14 @@ SERVO_DEBOUNCE_MS = 300
 SERVO_HOLD_MS = 200
 
 # --- Gestión de Energía ---
-BAT_DIVIDER_FACTOR = 2.0  
-BAT_MIN_VOLTAGE = 4.7  # Voltaje mínimo para hibernar. Recomendado: 4.7V     
-BAT_CHECK_INTERVAL_MS = 300000 # 5 minutos
+BAT_DIVIDER_FACTOR = 2.0
+BAT_MIN_VOLTAGE = 4.7  # Voltaje mínimo para hibernar. Recomendado: 4.7V
+BAT_CHECK_INTERVAL_MS = 300000  # 5 minutos
 
 # --- Constantes de Batería (Voltaje en V) ---
 BATTERY_VOLTAGE_MAX = 5.30
-BATTERY_VOLTAGE_MID = 5.00 # Sí baja de este valor ya es LOW
-#El vontage cuando esta conectado por usb es LOW
+BATTERY_VOLTAGE_MID = 5.00  # Sí baja de este valor ya es LOW
+# El vontage cuando esta conectado por usb es LOW
 
 # --- UUIDs de Bluetooth BLE ---
 POSTURE_SERVICE_UUID = ubluetooth.UUID("0000180f-0000-1000-8000-00805f9b34fb")
