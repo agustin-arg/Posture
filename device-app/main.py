@@ -7,6 +7,7 @@ from ble_service import PostureBLE
 from posture_logic import PostureProcessor
 from battery_monitor import BatteryMonitor
 
+
 class PostureApp:
     def __init__(self):
         # 1. Inicializar Hardware I2C y Sensor
@@ -25,7 +26,7 @@ class PostureApp:
 
         # 4. Lógica de Procesamiento
         self.processor = PostureProcessor(alpha=0.98)
-        
+
         # 5. Monitor de Batería
         self.battery = BatteryMonitor()
         self.last_battery_check = 0
@@ -38,55 +39,64 @@ class PostureApp:
 
     def calibrate(self):
         print("Calibrando...")
-        self.actuators.feedback_calibration() 
-        
+        self.actuators.feedback_calibration()
+
         if self.mpu:
             accel = self.mpu.get_accel_data()
             gyro = self.mpu.get_gyro_data()
-            
-            self.processor.reset() 
+
+            self.processor.reset()
             current_angle = self.processor.calculate_pitch(accel, gyro)
-            
+
             self.calibrated_angle = current_angle
             self.processor.reset(initial_angle=self.calibrated_angle)
-            
+
             self.is_calibrated = True
             self.actuators.confirm_calibration()
             print(f"Calibrado a: {self.calibrated_angle:.2f}")
         else:
             print("Error: No hay sensor para calibrar")
-        
+
         self.ble.calibrate_request = False
 
     def run(self):
-        print(f"Sistema iniciado. Chequeo de batería cada {self.battery_check_interval/1000}s")
+        print(
+            f"Sistema iniciado. Chequeo de batería cada {self.battery_check_interval/1000}s"
+        )
         last_notified_state = None
 
         # Notifica la batería una vez
         volts_inicial = self.battery.read_voltage()
-        battery_level = self.ble.notify_battery(volts_inicial)
+        battery_level = self.battery.get_battery_level(volts_inicial)
+        self.ble.notify_battery(battery_level)
         if battery_level == 0:
-                    self.actuators.set_battery_led(True)
+            self.actuators.set_battery_led(True)
         else:
             self.actuators.set_battery_led(False)
-        
+
         while True:
             now = utime.ticks_ms()
 
             # --- GESTIÓN DE BATERÍA ---
-            if utime.ticks_diff(now, self.last_battery_check) > self.battery_check_interval:
+            if (
+                utime.ticks_diff(now, self.last_battery_check)
+                > self.battery_check_interval
+            ):
                 # 1. Revisar hardware y obtener voltaje
                 volts = self.battery.check_and_handle_low_battery(self.actuators)
-                
-                # 2. Notificar al servicio BLE y obtener nivel
-                battery_level = self.ble.notify_battery(volts)
-                
-                # 3. Controlar LED según nivel de batería
+
+                # 2. Clasificar nivel de batería
+                battery_level = self.battery.get_battery_level(volts)
+
+                # 3. Notificar al servicio BLE
+                self.ble.notify_battery(battery_level)
+
+                # 4. Controlar LED según nivel de batería
                 if battery_level == 0:
                     self.actuators.set_battery_led(True)
                 else:
                     self.actuators.set_battery_led(False)
-                
+
                 self.last_battery_check = now
 
             # 1. Chequear petición de calibración
@@ -113,18 +123,18 @@ class PostureApp:
                     self.actuators.set_ble_led(True)
                     utime.sleep_ms(100)
                 continue
-            
+
             # --- OPERACIÓN NORMAL ---
             if self.mpu:
                 accel = self.mpu.get_accel_data()
                 gyro = self.mpu.get_gyro_data()
                 current_angle = self.processor.calculate_pitch(accel, gyro)
-                
+
                 deviation = abs(current_angle - self.calibrated_angle)
                 self.is_bad_posture = deviation > self.ble.threshold_angle
 
                 self.actuators.update(self.is_bad_posture, settings=self.ble)
-                
+
                 if self.ble.conn_handle:
                     self.actuators.set_ble_led(True)
 
@@ -133,6 +143,7 @@ class PostureApp:
                         last_notified_state = self.is_bad_posture
 
             utime.sleep_ms(100)
+
 
 if __name__ == "__main__":
     app = PostureApp()
