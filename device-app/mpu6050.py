@@ -1,11 +1,12 @@
 import machine
 
+
 class MPU6050:
     def __init__(self, i2c, addr=0x68):
         self.i2c = i2c
         self.addr = addr
         # Despertar el sensor MPU6050
-        self.i2c.writeto(self.addr, b'\x6B\x00')
+        self.i2c.writeto(self.addr, b"\x6b\x00")
 
     def _read_word_2c(self, reg):
         val = self.i2c.readfrom_mem(self.addr, reg, 2)
@@ -23,7 +24,7 @@ class MPU6050:
             x /= 16384.0
             y /= 16384.0
             z /= 16384.0
-        return {'x': x, 'y': y, 'z': z}
+        return {"x": x, "y": y, "z": z}
 
     def get_gyro_data(self):
         x = self._read_word_2c(0x43)
@@ -32,4 +33,4 @@ class MPU6050:
         x /= 131.0
         y /= 131.0
         z /= 131.0
-        return {'x': x, 'y': y, 'z': z}
+        return {"x": x, "y": y, "z": z}
