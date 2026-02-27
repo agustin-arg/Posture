@@ -240,20 +240,26 @@ class PostureActuators:
         now = utime.ticks_ms()
 
         if not enabled or not is_bad_posture:
-            try:
-                self.servo.duty(0)
-            except:
-                pass
-            self._servo_state = 0
-            self._servo_debounce_since = 0
-            self._servo_phase_until = 0
-            return
+            # Sin movimiento activo: parar de inmediato
+            if self._servo_state in (0, 3):
+                try:
+                    self.servo.duty(0)
+                except:
+                    pass
+                self._servo_state = 0
+                self._servo_debounce_since = 0
+                self._servo_phase_until = 0
+                return
+            # Estados 1 y 2: dejar que la máquina de estados complete el recorrido
 
         # --- Estado 0: IDLE — esperar debounce antes de disparar ---
         if self._servo_state == 0:
             if self._servo_debounce_since == 0:
                 self._servo_debounce_since = now
-            if utime.ticks_diff(now, self._servo_debounce_since) >= config.SERVO_DEBOUNCE_MS:
+            if (
+                utime.ticks_diff(now, self._servo_debounce_since)
+                >= config.SERVO_DEBOUNCE_MS
+            ):
                 # Debounce superado → mover a posición de alerta
                 try:
                     self.servo.duty(self._angle_to_duty(config.SERVO_ALERT_ANGLE))
